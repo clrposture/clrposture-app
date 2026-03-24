@@ -50,6 +50,18 @@ export default function HomePage() {
           <p className="text-xs text-gray-600">
             Aligned with NIST CSF 2.0 (February 2024) · MIT licensed · Open source
           </p>
+          <p className="text-xs text-gray-700">
+            The hosted version collects anonymised usage data via{" "}
+            <a
+              href="https://posthog.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-500"
+            >
+              PostHog
+            </a>{" "}
+            to measure adoption. No personal data is stored.
+          </p>
         </div>
       </div>
     </main>
