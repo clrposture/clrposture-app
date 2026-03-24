@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "packageManager": "pnpm@9.15.4",
   "engines": {
     "node": ">=22"
   },
