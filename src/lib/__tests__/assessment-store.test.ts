@@ -1,4 +1,5 @@
 import { describe, expect, it, beforeEach } from "vitest";
+import type { Tier } from "@clrposture/core";
 import {
   createAssessmentStore,
   FUNCTION_ORDER,
@@ -37,8 +38,8 @@ describe("createAssessmentStore", () => {
 
   it("overwrites an existing answer", () => {
     const store = createAssessmentStore();
-    let updated = { ...store, answers: { "GV.OC-01": 2 as const } };
-    updated = { ...updated, answers: { ...updated.answers, "GV.OC-01": 4 as const } };
+    let updated: ReturnType<typeof createAssessmentStore> = { ...store, answers: { "GV.OC-01": 2 as Tier } };
+    updated = { ...updated, answers: { ...updated.answers, "GV.OC-01": 4 as Tier } };
     expect(updated.answers["GV.OC-01"]).toBe(4);
   });
 });
