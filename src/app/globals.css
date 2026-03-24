@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+@media print {
+  /* Hide navigation chrome when printing */
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+
+  /* Ensure gap report items don't split across pages */
+  li {
+    break-inside: avoid;
+  }
+}

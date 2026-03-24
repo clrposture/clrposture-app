@@ -14,7 +14,9 @@ import {
 import type { Profile } from "@clrposture/core";
 import { useAssessment } from "@/lib/assessment-context";
 import { FUNCTION_ORDER } from "@/lib/assessment-store";
+import { ExportBar } from "@/components/ExportBar";
 import type { FunctionId, Tier } from "@clrposture/core";
+import type { AnalysisReport } from "@/lib/export/types";
 
 const PROFILE_MAP: Record<string, Profile> = {
   fintech: FINTECH_PROFILE,
@@ -71,7 +73,7 @@ const BUCKET_HEADER_COLORS: Record<string, string> = {
 export default function ResultsPage() {
   const { store, reset } = useAssessment();
 
-  const report = useMemo(() => {
+  const report = useMemo((): AnalysisReport | null => {
     if (!store.industry || Object.keys(store.answers).length === 0) return null;
     const profile = PROFILE_MAP[store.industry];
     if (!profile) return null;
@@ -80,7 +82,7 @@ export default function ResultsPage() {
       tier: tier as Tier,
     }));
     const analyzer = new GapAnalyzer(CSF_FUNCTIONS);
-    return analyzer.analyze(answers, profile, crypto.randomUUID());
+    return analyzer.analyze(answers, profile, crypto.randomUUID()) as AnalysisReport;
   }, [store]);
 
   if (!report) {
@@ -112,19 +114,22 @@ export default function ResultsPage() {
     <main className="min-h-screen bg-gray-950 text-white px-4 py-10">
       <div className="max-w-3xl mx-auto space-y-10">
         {/* Header */}
-        <div className="space-y-2">
-          <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest">
-            Assessment Complete
-          </p>
-          <h2 className="text-3xl font-bold">Your Gap Report</h2>
-          <p className="text-gray-400">
-            Industry:{" "}
-            <span className="text-white capitalize">
-              {store.industry?.replace(/-/g, " ")}
-            </span>
-            {" · "}
-            {totalGaps} gap{totalGaps !== 1 ? "s" : ""} identified
-          </p>
+        <div className="space-y-3">
+          <div>
+            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest">
+              Assessment Complete
+            </p>
+            <h2 className="text-3xl font-bold mt-1">Your Gap Report</h2>
+            <p className="text-gray-400 mt-1">
+              Industry:{" "}
+              <span className="text-white capitalize">
+                {store.industry?.replace(/-/g, " ")}
+              </span>
+              {" · "}
+              {totalGaps} gap{totalGaps !== 1 ? "s" : ""} identified
+            </p>
+          </div>
+          <ExportBar report={report} industry={store.industry ?? ""} />
         </div>
 
         {/* Function scores */}
