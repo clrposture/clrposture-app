@@ -71,7 +71,10 @@ export function AssessmentProvider({
   }, []);
 
   const reset = useCallback(() => {
-    clearOnNextSave.current = true;
+    // Clear localStorage synchronously so navigation triggered immediately
+    // after reset() (e.g. window.location.href) doesn't race the save effect.
+    clearAssessment();
+    clearOnNextSave.current = true; // prevent the save effect from re-writing the empty store
     setStore(createAssessmentStore());
   }, []);
 

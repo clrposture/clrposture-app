@@ -105,4 +105,23 @@ describe("AssessmentProvider", () => {
     expect(screen.getByTestId("industry").textContent).toBe("none");
     expect(localStorage.getItem("clrposture_assessment")).toBeNull();
   });
+
+  it("reset clears localStorage synchronously before effects fire", async () => {
+    // Regression: window.location.href navigation triggered immediately after
+    // reset() would reload the page before the save effect ran, leaving stale
+    // data in localStorage and restoring it on the next hydration.
+    const { unmount } = render(
+      <AssessmentProvider>
+        <SetIndustryButton />
+        <ResetButton />
+      </AssessmentProvider>
+    );
+    await userEvent.click(screen.getByText("set industry"));
+    // Simulate what the results page does: call reset then navigate away
+    // immediately. We test the synchronous side-effect by reading localStorage
+    // before any further React renders occur.
+    await userEvent.click(screen.getByText("reset"));
+    unmount(); // simulate navigation away before effects flush
+    expect(localStorage.getItem("clrposture_assessment")).toBeNull();
+  });
 });
