@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { usePostHog } from "posthog-js/react";
 import { useAssessment } from "@/lib/assessment-context";
+import { EVENTS, assessmentStartedProps } from "@/lib/analytics";
 
 const INDUSTRIES = [
   {
@@ -33,10 +35,12 @@ const INDUSTRIES = [
 
 export default function IndustryPage() {
   const router = useRouter();
+  const posthog = usePostHog();
   const { store, setIndustry } = useAssessment();
 
   function handleSelect(industryId: string) {
     setIndustry(industryId);
+    posthog?.capture(EVENTS.ASSESSMENT_STARTED, assessmentStartedProps(industryId));
     router.push("/assess/GV");
   }
 

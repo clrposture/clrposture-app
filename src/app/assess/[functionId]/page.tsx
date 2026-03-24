@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { CSF_FUNCTIONS } from "@clrposture/core";
 import type { FunctionId, Tier } from "@clrposture/core";
 import { FUNCTION_ORDER, nextFunction, prevFunction } from "@/lib/assessment-store";
+import { usePostHog } from "posthog-js/react";
 import { useAssessment } from "@/lib/assessment-context";
+import { EVENTS, functionCompletedProps } from "@/lib/analytics";
 import { ProgressBar } from "@/components/ProgressBar";
 import { TierRadio } from "@/components/TierRadio";
 
@@ -25,6 +27,7 @@ export default function FunctionPage({
 }) {
   const { functionId } = use(params);
   const router = useRouter();
+  const posthog = usePostHog();
   const { store, recordAnswer } = useAssessment();
 
   const fnId = functionId as FunctionId;
@@ -40,6 +43,7 @@ export default function FunctionPage({
   const totalSteps = FUNCTION_ORDER.length + 1;
 
   function handleNext() {
+    posthog?.capture(EVENTS.FUNCTION_COMPLETED, functionCompletedProps(fnId, answeredCount));
     const next = nextFunction(fnId);
     if (next) {
       router.push(`/assess/${next}`);

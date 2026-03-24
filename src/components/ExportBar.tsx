@@ -1,8 +1,10 @@
 "use client";
 
+import { usePostHog } from "posthog-js/react";
 import { reportToCsv } from "@/lib/export/csv";
 import { reportToMarkdown } from "@/lib/export/markdown";
 import { downloadBlob } from "@/lib/export/download";
+import { EVENTS, exportClickedProps } from "@/lib/analytics";
 import type { AnalysisReport } from "@/lib/export/types";
 
 type Props = {
@@ -11,15 +13,18 @@ type Props = {
 };
 
 export function ExportBar({ report, industry }: Props) {
+  const posthog = usePostHog();
   const slug = industry.toLowerCase().replace(/\s+/g, "-");
   const date = new Date().toISOString().slice(0, 10);
   const base = `clrposture-${slug}-${date}`;
 
   function handleCsv() {
+    posthog?.capture(EVENTS.EXPORT_CLICKED, exportClickedProps("csv"));
     downloadBlob(reportToCsv(report), `${base}.csv`, "text/csv");
   }
 
   function handleMarkdown() {
+    posthog?.capture(EVENTS.EXPORT_CLICKED, exportClickedProps("markdown"));
     downloadBlob(
       reportToMarkdown(report, industry),
       `${base}.md`,
@@ -28,6 +33,7 @@ export function ExportBar({ report, industry }: Props) {
   }
 
   function handlePdf() {
+    posthog?.capture(EVENTS.EXPORT_CLICKED, exportClickedProps("pdf"));
     window.print();
   }
 

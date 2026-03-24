@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
+import { usePostHog } from "posthog-js/react";
 import {
   GapAnalyzer,
   CSF_FUNCTIONS,
@@ -15,6 +16,7 @@ import type { Profile } from "@clrposture/core";
 import { useAssessment } from "@/lib/assessment-context";
 import { FUNCTION_ORDER } from "@/lib/assessment-store";
 import { ExportBar } from "@/components/ExportBar";
+import { EVENTS, assessmentCompletedProps } from "@/lib/analytics";
 import type { FunctionId, Tier } from "@clrposture/core";
 import type { AnalysisReport } from "@/lib/export/types";
 
@@ -72,6 +74,7 @@ const BUCKET_HEADER_COLORS: Record<string, string> = {
 
 export default function ResultsPage() {
   const { store, reset } = useAssessment();
+  const posthog = usePostHog();
 
   const report = useMemo((): AnalysisReport | null => {
     if (!store.industry || Object.keys(store.answers).length === 0) return null;
@@ -84,6 +87,21 @@ export default function ResultsPage() {
     const analyzer = new GapAnalyzer(CSF_FUNCTIONS);
     return analyzer.analyze(answers, profile, crypto.randomUUID()) as AnalysisReport;
   }, [store]);
+
+  // Fire assessment_completed once when a valid report first appears.
+  useEffect(() => {
+    if (!report || !store.industry) return;
+    posthog?.capture(
+      EVENTS.ASSESSMENT_COMPLETED,
+      assessmentCompletedProps(store.industry, {
+        immediate: report.remediationPlan.immediate.length,
+        shortTerm: report.remediationPlan.shortTerm.length,
+        strategic: report.remediationPlan.strategic.length,
+        weakestFunction: report.remediationPlan.weakestFunction?.id ?? null,
+      })
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [report?.assessmentId]); // assessmentId is stable per session
 
   if (!report) {
     return (

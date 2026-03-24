@@ -40,10 +40,20 @@ The scoring and gap analysis are powered by [`@clrposture/core`](https://github.
 git clone https://github.com/clrposture/clrposture-app.git
 cd clrposture-app
 pnpm install
+cp .env.local.example .env.local   # add your PostHog key (optional — analytics disabled without it)
 pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+### Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_POSTHOG_KEY` | No | PostHog project API key — analytics disabled when absent |
+| `NEXT_PUBLIC_POSTHOG_HOST` | No | PostHog ingest host (default: `https://us.i.posthog.com`) |
+
+Get a free PostHog key at [posthog.com](https://posthog.com) (generous free tier, open source).
 
 ---
 
@@ -109,6 +119,19 @@ Clrposture is built on NIST CSF 2.0 (published February 2024). The framework and
 - **CMMC 2.0** — DoD Cybersecurity Maturity Model Certification; required for defense industrial base contractors handling CUI
 - **HIPAA Security Rule** — HHS requirement for healthcare organizations handling electronic PHI
 - **NIST SP 800-171** — Protecting CUI in non-federal systems; referenced by DFARS 252.204-7012
+
+---
+
+## Deploying to Vercel
+
+1. Push this repo to GitHub (already done at `clrposture/clrposture-app`)
+2. Go to [vercel.com/new](https://vercel.com/new), import the `clrposture/clrposture-app` repo
+3. Vercel auto-detects Next.js — no framework settings to change
+4. Add environment variables in the Vercel dashboard:
+   - `NEXT_PUBLIC_POSTHOG_KEY` — your PostHog project key
+5. Deploy
+
+Every push to `main` redeploys automatically.
 
 ---
 
